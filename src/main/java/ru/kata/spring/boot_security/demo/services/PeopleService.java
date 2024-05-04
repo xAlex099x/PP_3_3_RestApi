@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.services;
 
+import ru.kata.spring.boot_security.demo.dto.PersonDTO;
 import ru.kata.spring.boot_security.demo.models.Person;
 import java.util.List;
 
@@ -10,9 +11,9 @@ public interface PeopleService {
 
     public Person userById(long id);
 
-    public void addUser(Person person);
+    public void addUser(PersonDTO personDto);
 
-    public void updateUser(long id, Person updatedUser);
+    public void updateUser(long id, PersonDTO updatedUserDto);
 
     public void deleteUser(long id);
 }

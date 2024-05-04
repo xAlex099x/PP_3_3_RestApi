@@ -8,7 +8,7 @@ import ru.kata.spring.boot_security.demo.models.Person;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.services.PeopleServiceImpl;
 import ru.kata.spring.boot_security.demo.services.RoleServiceImpl;
-
+import ru.kata.spring.boot_security.demo.util.DTOConverter;
 import java.util.HashSet;
 
 @Component
@@ -17,22 +17,25 @@ public class StartupApplicationListener implements ApplicationListener<ContextRe
     private final RoleServiceImpl roleServiceImpl;
     private final PeopleServiceImpl peopleServiceImpl;
 
+    private final DTOConverter dtoConverter;
+
 
     @Autowired
-    public StartupApplicationListener(RoleServiceImpl roleServiceImpl, PeopleServiceImpl peopleServiceImpl) {
+    public StartupApplicationListener(RoleServiceImpl roleServiceImpl, PeopleServiceImpl peopleServiceImpl, DTOConverter dtoConverter) {
         this.roleServiceImpl = roleServiceImpl;
         this.peopleServiceImpl = peopleServiceImpl;
+        this.dtoConverter = dtoConverter;
     }
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         // Проверяем наличие ролей Admin и User в базе данных, а так же root пользователя.
-        Role adminRole = roleServiceImpl.findByName("ROLE_ADMIN");
-        Role userRole = roleServiceImpl.findByName("ROLE_USER");
+        Role adminRole = roleServiceImpl.findByName(RolesEnum.ADMIN.getRoleName());
+        Role userRole = roleServiceImpl.findByName(RolesEnum.USER.getRoleName());
         Person Admin = peopleServiceImpl.userByUsername("Testuser");
 
         if (adminRole == null) {
-            roleServiceImpl.save(new Role("ROLE_ADMIN"));
+            roleServiceImpl.save(new Role(RolesEnum.ADMIN.getRoleName()));
         }
         if (userRole == null) {
             roleServiceImpl.save(new Role("ROLE_USER"));
@@ -43,8 +46,8 @@ public class StartupApplicationListener implements ApplicationListener<ContextRe
                     "Testuser",
                     "Test@Test.com",
                     new HashSet<Role>());
-            person.getRoles().add(roleServiceImpl.findByName("ROLE_ADMIN"));
-            peopleServiceImpl.addUser(person);
+            person.getRoles().add(roleServiceImpl.findByName(RolesEnum.ADMIN.getRoleName()));
+            peopleServiceImpl.addUser(dtoConverter.convertToDto(person));
         }
     }
 }

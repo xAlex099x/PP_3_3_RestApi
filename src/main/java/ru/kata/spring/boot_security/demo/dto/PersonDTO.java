@@ -1,13 +1,24 @@
 package ru.kata.spring.boot_security.demo.dto;
 
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.kata.spring.boot_security.demo.configs.RolesEnum;
+import ru.kata.spring.boot_security.demo.models.Person;
+import ru.kata.spring.boot_security.demo.models.Role;
+import ru.kata.spring.boot_security.demo.services.RoleService;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PersonDTO {
 
+    @Autowired
+    private static RoleService roleServiceImpl;
+    private static final ModelMapper modelMapper = new ModelMapper();
     private long id;
     @NotEmpty(message = "Имя не должно быть пустым")
     @Size(min = 2, max = 60, message = "Имя пользователя должно быть от 2 до 60 символов")
@@ -21,7 +32,7 @@ public class PersonDTO {
     @Email
     private String email;
 
-    private List<String> roles;
+    private Set<String> roles;
 
     public long getId() {
         return id;
@@ -55,11 +66,12 @@ public class PersonDTO {
         this.email = email;
     }
 
-    public List<String> getRoles() {
+    public Set<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<String> roles) {
+    public void setRoles(Set<String> roles) {
         this.roles = roles;
     }
+
 }

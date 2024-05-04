@@ -39,13 +39,27 @@ document.addEventListener('DOMContentLoaded', function () {
         editForm.addEventListener('submit', submitEditUserForm);
     }
 });
-document.addEventListener('DOMContentLoaded', function () {
-    var form = document.getElementById('createUserForm');
-    form.addEventListener('submit', submitNewUserForm);
-});
+// document.addEventListener('DOMContentLoaded', function () {
+//     var form = document.getElementById('createUserForm');
+//     form.addEventListener('submit', submitNewUserForm);
+// });
 document.addEventListener('DOMContentLoaded', function () {
     var form = document.getElementById('deleteUserForm');
     form.addEventListener('submit', submitDeleteUserForm);
+});
+document.addEventListener('DOMContentLoaded', function() {
+    var addUserButton = document.getElementById('addNewUserButton');
+    var viewUsersButton = document.getElementById('usersTableButton');
+
+    addUserButton.addEventListener('click', function() {
+        document.getElementById('usersTablePage').style.display = 'none';
+        document.getElementById('newUserForm').style.display = 'block';
+    });
+
+    viewUsersButton.addEventListener('click', function() {
+        document.getElementById('newUserForm').style.display = 'none';
+        document.getElementById('usersTablePage').style.display = 'block';
+    });
 });
 
 //Get users table
@@ -77,35 +91,68 @@ async function getUsersTable() {
 }
 
 //New user
-function submitNewUserForm(event) {
-    event.preventDefault();
-    var form = event.target;
-    var formData = new FormData(form);
-
-    var user = convertFormDataToUserObject(formData, 'new_user_');
-    console.log("Sending JSON:", JSON.stringify(user));
-
-    userFetchService.addNewUser(user)
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw data;
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.status && data.status !== 200) {
-                handleValidationErrors(data, 'new_user');
-            } else {
-                $('#createUserModal').modal('hide');
-                getUsersTable();
-            }
-        })
-        .catch(error => {
-            handleValidationErrors(error, 'new_user');
-        });
+function updateContentForNewUser() {
+    document.getElementById('contentArea').innerHTML = `
+        <div class="card-header font-weight-bold">
+            Add new user
+        </div>
+        <div class="card-body mx-auto">
+            <form id="userForm" method="POST" action="/admin/new">
+                <div class="form-group">
+                    <label class="text-center" for="newUser_Username">Username:</label>
+                    <input type="text" id="newUser_Username" name="newUser_Username" class="form-control" required minlength="2" maxlength="40">
+                </div>
+                <div class="form-group">
+                    <label class="text-center" for="newUser_Password">Password:</label>
+                    <input type="password" id="newUser_Password" name="newUser_Password" class="form-control" required minlength="2" maxlength="16">
+                </div>
+                <div class="form-group" >
+                    <label class="text-center" for="newUser_Email">Email:</label>
+                    <input type="email" id="newUser_Email" name="newUser_Email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="text-center" for="newUser_Role">Role:</label>
+                    <select id="newUser_Role" name="newUser_Role" class="form-control" multiple size="2">
+                        <option value="ROLE_ADMIN">Admin</option>
+                        <option value="ROLE_USER">User</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success mx-auto d-block">Add new user</button>
+            </form>
+        </div>
+    `;
 }
+
+
+// function submitNewUserForm(event) {
+//     event.preventDefault();
+//     var form = event.target;
+//     var formData = new FormData(form);
+//
+//     var user = convertFormDataToUserObject(formData, 'new_user_');
+//     console.log("Sending JSON:", JSON.stringify(user));
+//
+//     userFetchService.addNewUser(user)
+//         .then(response => {
+//             if (!response.ok) {
+//                 return response.json().then(data => {
+//                     throw data;
+//                 });
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             if (data.status && data.status !== 200) {
+//                 handleValidationErrors(data, 'new_user');
+//             } else {
+//                 $('#createUserModal').modal('hide');
+//                 getUsersTable();
+//             }
+//         })
+//         .catch(error => {
+//             handleValidationErrors(error, 'new_user');
+//         });
+// }
 
 //Edit user
 function submitEditUserForm(event) {
@@ -187,7 +234,15 @@ function convertFormDataToUserObject(formData, prefixToRemove) {
             if (newKey.startsWith('_')) {
                 newKey = newKey.slice(1);
             }
-            user[newKey] = (newKey === 'roles') ? [value] : value;
+            if (newKey in user) {
+                if (Array.isArray(user[newKey])) {
+                    user[newKey].push(value);
+                } else {
+                    user[newKey] = [user[newKey], value];
+                }
+            } else {
+                user[newKey] = (newKey === 'roles') ? [value] : value;
+            }
         }
     });
     return user;

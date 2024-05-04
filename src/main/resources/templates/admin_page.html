@@ -33,7 +33,7 @@
         <span class="text-white font-weight-bold" th:text="${person.email}"></span>
         <span class="text-white"> with roles: </span>
         <span class="text-white font-weight-bold" th:each="role, iterStat : ${person.roles}"
-              th:text="${role.name} + (iterStat.last ? '' : ', ')">
+              th:text="${role} + (iterStat.last ? '' : ', ')">
             </span>
     </div>
     <div class="navbar-nav ml-auto">
@@ -51,13 +51,14 @@
                     <a href="/admin" class="nav-link bg-primary text-white">Admin</a>
                 </li>
                 <li class="nav-item">
-                    <a href="/index" class="nav-link text-primary">User</a>
+                    <a href="/user" class="nav-link text-primary">User</a>
                 </li>
             </ul>
         </div>
 
         <!-- Основной контент -->
-        <div class="col-md-10 bg-light" style="min-height: 100vh;">
+        <!-- Таблица пользователей -->
+        <div id="usersTablePage" class="col-md-10 bg-light" style="min-height: 100vh;">
             <h1 class="display-5 font-weight-bold">Admin panel</h1>
             <!-- Кнопки управления -->
             <div>
@@ -89,53 +90,84 @@
                 </table>
             </div>
         </div>
-    </div>
-</div>
 
-
-<!-- Modal new user -->
-<div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createUserModalLabel">Create New User</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                <form id="createUserForm" class="mx-auto w-50">
-                    <div class="form-group">
-                        <label for="new_user_username"><strong>Username</strong></label>
-                        <input type="text" class="form-control" id="new_user_username" name="new_user_username"
-                               required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new_user_password"><strong>Password</strong></label>
-                        <input type="password" class="form-control" id="new_user_password" name="new_user_password"
-                               required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new_user_email"><strong>Email</strong></label>
-                        <input type="email" class="form-control" id="new_user_email" name="new_user_email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new_user_roles" class="col-form-label"><strong>Role</strong></label>
-                        <select multiple size="2" class="form-control" id="new_user_roles" name="new_user_roles">
-                            <option value="ROLE_ADMIN">Admin</option>
-                            <option value="ROLE_USER">User</option>
-                        </select>
-                    </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Add new user</button>
-            </div>
+        <!-- Форма для нового пользователя -->
+        <div class="card-header font-weight-bold">
+            Add new user
+        </div>
+        <div class="card-body mx-auto">
+            <form id="newUserForm">
+                <div class="form-group">
+                    <label class="text-center" for="newUser_Username">Username:</label>
+                    <input type="text" id="newUser_Username" name="newUser_Username" class="form-control" required minlength="2" maxlength="40">
+                </div>
+                <div class="form-group">
+                    <label class="text-center" for="newUser_Password">Password:</label>
+                    <input type="password" id="newUser_Password" name="newUser_Password" class="form-control" required minlength="2" maxlength="16">
+                </div>
+                <div class="form-group" >
+                    <label class="text-center" for="newUser_Email">Email:</label>
+                    <input type="email" id="newUser_Email" name="newUser_Email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="text-center" for="newUser_Role">Role:</label>
+                    <select id="newUser_Role" name="newUser_Role" class="form-control" multiple size="2">
+                        <option value="ROLE_ADMIN">Admin</option>
+                        <option value="ROLE_USER">User</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success mx-auto d-block">Add new user</button>
             </form>
         </div>
+        `;
+        }
     </div>
 </div>
+
+
+<!--&lt;!&ndash; Modal new user &ndash;&gt;-->
+<!--<div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel"-->
+<!--     aria-hidden="true">-->
+<!--    <div class="modal-dialog" role="document">-->
+<!--        <div class="modal-content">-->
+<!--            <div class="modal-header">-->
+<!--                <h5 class="modal-title" id="createUserModalLabel">Create New User</h5>-->
+<!--                <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                    <span aria-hidden="true">&times;</span>-->
+<!--                </button>-->
+<!--            </div>-->
+<!--            <div class="modal-body text-center">-->
+<!--                <form id="createUserForm" class="mx-auto w-50">-->
+<!--                    <div class="form-group">-->
+<!--                        <label for="new_user_username"><strong>Username</strong></label>-->
+<!--                        <input type="text" class="form-control" id="new_user_username" name="new_user_username"-->
+<!--                               required>-->
+<!--                    </div>-->
+<!--                    <div class="form-group">-->
+<!--                        <label for="new_user_password"><strong>Password</strong></label>-->
+<!--                        <input type="password" class="form-control" id="new_user_password" name="new_user_password"-->
+<!--                               required>-->
+<!--                    </div>-->
+<!--                    <div class="form-group">-->
+<!--                        <label for="new_user_email"><strong>Email</strong></label>-->
+<!--                        <input type="email" class="form-control" id="new_user_email" name="new_user_email" required>-->
+<!--                    </div>-->
+<!--                    <div class="form-group">-->
+<!--                        <label for="new_user_roles" class="col-form-label"><strong>Role</strong></label>-->
+<!--                        <select multiple size="2" class="form-control" id="new_user_roles" name="new_user_roles">-->
+<!--                            <option value="ROLE_ADMIN">Admin</option>-->
+<!--                            <option value="ROLE_USER">User</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--            </div>-->
+<!--            <div class="modal-footer">-->
+<!--                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+<!--                <button type="submit" class="btn btn-primary">Add new user</button>-->
+<!--            </div>-->
+<!--            </form>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 
 <!-- Modal Edit-->
 <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -168,7 +200,7 @@
                     </div>
                     <div class="form-group">
                         <label for="edit_user_roles" class="col-form-label"><strong>ROLE:</strong></label>
-                        <select size=2 class="form-control" id="edit_user_roles" name="edit_user_roles">
+                        <select multiple size=2 class="form-control" id="edit_user_roles" name="edit_user_roles">
                             <option value="ROLE_ADMIN">Admin</option>
                             <option value="ROLE_USER">User</option>
                         </select>
@@ -213,7 +245,7 @@
                     </div>
                     <div class="form-group">
                         <label for="delete_user_roles"><strong>Role:</strong></label>
-                        <select size=2 class="form-control" id="delete_user_roles" name="delete_user_roles" disabled>
+                        <select multiple size=2 class="form-control" id="delete_user_roles" name="delete_user_roles" disabled>
                             <option value="ROLE_ADMIN">Admin</option>
                             <option value="ROLE_USER">User</option>
                         </select>
