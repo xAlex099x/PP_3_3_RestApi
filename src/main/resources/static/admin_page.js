@@ -30,6 +30,10 @@ const userFetchService = {
 }
 
 //Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const button = document.querySelector('#newUserForm button');
+    button.addEventListener('click', handleNewUserFormSubmit);
+});
 document.addEventListener('DOMContentLoaded', function () {
     $("#usersTable").on('click', 'button', handleTableButtonClick);
 });
@@ -39,10 +43,6 @@ document.addEventListener('DOMContentLoaded', function () {
         editForm.addEventListener('submit', submitEditUserForm);
     }
 });
-// document.addEventListener('DOMContentLoaded', function () {
-//     var form = document.getElementById('createUserForm');
-//     form.addEventListener('submit', submitNewUserForm);
-// });
 document.addEventListener('DOMContentLoaded', function () {
     var form = document.getElementById('deleteUserForm');
     form.addEventListener('submit', submitDeleteUserForm);
@@ -51,14 +51,44 @@ document.addEventListener('DOMContentLoaded', function() {
     var addUserButton = document.getElementById('addNewUserButton');
     var viewUsersButton = document.getElementById('usersTableButton');
 
+    var inactiveButtonStyle = {
+        color: '#007bff',
+        backgroundColor: 'transparent',
+        borderColor: 'transparent',
+        textDecoration: 'none',
+        classes: 'btn btn-link text-primary'
+    };
+
+    var activeButtonStyle = {
+        color: '#6c757d',
+        backgroundColor: '#FFFFFF',
+        borderColor: '#DCDCDC',
+        textDecoration: 'none',
+        classes: 'btn btn-white active'
+    };
+
+    function applyButtonStyles(button, style) {
+        button.style.color = style.color;
+        button.style.backgroundColor = style.backgroundColor;
+        button.style.borderColor = style.borderColor;
+        button.style.textDecoration = style.textDecoration;
+        button.className = style.classes;
+    }
+
     addUserButton.addEventListener('click', function() {
         document.getElementById('usersTablePage').style.display = 'none';
         document.getElementById('newUserForm').style.display = 'block';
+
+        applyButtonStyles(addUserButton, activeButtonStyle);
+        applyButtonStyles(viewUsersButton, inactiveButtonStyle);
     });
 
     viewUsersButton.addEventListener('click', function() {
         document.getElementById('newUserForm').style.display = 'none';
         document.getElementById('usersTablePage').style.display = 'block';
+
+        applyButtonStyles(viewUsersButton, activeButtonStyle);
+        applyButtonStyles(addUserButton, inactiveButtonStyle);
     });
 });
 
@@ -91,68 +121,29 @@ async function getUsersTable() {
 }
 
 //New user
-function updateContentForNewUser() {
-    document.getElementById('contentArea').innerHTML = `
-        <div class="card-header font-weight-bold">
-            Add new user
-        </div>
-        <div class="card-body mx-auto">
-            <form id="userForm" method="POST" action="/admin/new">
-                <div class="form-group">
-                    <label class="text-center" for="newUser_Username">Username:</label>
-                    <input type="text" id="newUser_Username" name="newUser_Username" class="form-control" required minlength="2" maxlength="40">
-                </div>
-                <div class="form-group">
-                    <label class="text-center" for="newUser_Password">Password:</label>
-                    <input type="password" id="newUser_Password" name="newUser_Password" class="form-control" required minlength="2" maxlength="16">
-                </div>
-                <div class="form-group" >
-                    <label class="text-center" for="newUser_Email">Email:</label>
-                    <input type="email" id="newUser_Email" name="newUser_Email" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label class="text-center" for="newUser_Role">Role:</label>
-                    <select id="newUser_Role" name="newUser_Role" class="form-control" multiple size="2">
-                        <option value="ROLE_ADMIN">Admin</option>
-                        <option value="ROLE_USER">User</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-success mx-auto d-block">Add new user</button>
-            </form>
-        </div>
-    `;
+async function handleNewUserFormSubmit(event) {
+    event.preventDefault();
+
+    const form = document.querySelector('#newUserForm form');
+    const formData = new FormData(form);
+    const userObject = convertFormDataToUserObject(formData, 'new_user_');
+    const viewUsersButton = document.getElementById('usersTableButton');
+
+    try {
+        const response = await userFetchService.addNewUser(userObject);
+        if (!response.ok) {
+            const errors = await response.json();
+            handleValidationErrors(errors, 'new_user');
+        } else {
+            await getUsersTable();
+            form.reset();
+            clearValidationMessages(form);
+            viewUsersButton.click();
+        }
+    } catch (error) {
+        console.error('Error submitting form:', error);
+    }
 }
-
-
-// function submitNewUserForm(event) {
-//     event.preventDefault();
-//     var form = event.target;
-//     var formData = new FormData(form);
-//
-//     var user = convertFormDataToUserObject(formData, 'new_user_');
-//     console.log("Sending JSON:", JSON.stringify(user));
-//
-//     userFetchService.addNewUser(user)
-//         .then(response => {
-//             if (!response.ok) {
-//                 return response.json().then(data => {
-//                     throw data;
-//                 });
-//             }
-//             return response.json();
-//         })
-//         .then(data => {
-//             if (data.status && data.status !== 200) {
-//                 handleValidationErrors(data, 'new_user');
-//             } else {
-//                 $('#createUserModal').modal('hide');
-//                 getUsersTable();
-//             }
-//         })
-//         .catch(error => {
-//             handleValidationErrors(error, 'new_user');
-//         });
-// }
 
 //Edit user
 function submitEditUserForm(event) {
@@ -258,6 +249,14 @@ function handleValidationErrors(errors, prefixToAdd) {
         inputField.addClass('is-invalid');
         inputField.after(`<span class="error-message" style="color:red;">${message}</span>`);
     });
+}
+
+function clearValidationMessages(form) {
+    const errorMessages = form.querySelectorAll('.error-message');
+    const invalidFields = form.querySelectorAll('.is-invalid');
+
+    errorMessages.forEach(message => message.remove());
+    invalidFields.forEach(field => field.classList.remove('is-invalid'));
 }
 
 function getCsrfToken() {

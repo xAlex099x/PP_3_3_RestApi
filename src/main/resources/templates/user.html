@@ -6,16 +6,15 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         .nav-item .nav-link {
-            margin-right: -15px; /* Убрать отрицательный правый внешний отступ, если он есть */
-            margin-left: -15px; /* Убрать отрицательный левый внешний отступ, если он есть */
-            padding-right: 15px; /* Восстановить правый внутренний отступ */
-            padding-left: 15px; /* Восстановить левый внутренний отступ */
+            margin-right: -15px;
+            margin-left: -15px;
+            padding-right: 15px;
+            padding-left: 15px;
         }
 
-        /* Дополнительный класс для текста внутри ссылки, если нужно */
         .nav-link-text {
-            padding-left: 15px; /* Вернуть внутренний отступ тексту */
-            padding-right: 15px; /* Вернуть внутренний отступ тексту */
+            padding-left: 15px;
+            padding-right: 15px;
         }
     </style>
 </head>
@@ -26,7 +25,7 @@
         <span class="text-white font-weight-bold" th:text="${person.email}"></span>
         <span class="text-white"> with roles: </span>
         <span class="text-white font-weight-bold" th:each="role, iterStat : ${person.roles}"
-              th:text="${role.name} + (iterStat.last ? '' : ', ')">
+              th:text="${role} + (iterStat.last ? '' : ', ')">
             </span>
     </div>
     <div class="navbar-nav ml-auto">
@@ -73,7 +72,7 @@
                         <td th:text="${person.email}"></td>
                         <td>
                             <ul>
-                                <li th:each="role : ${person.roles}" th:text="${role.name}"></li>
+                                <li th:each="role : ${person.roles}" th:text="${role}"></li>
                             </ul>
                         </td>
                     </tr>

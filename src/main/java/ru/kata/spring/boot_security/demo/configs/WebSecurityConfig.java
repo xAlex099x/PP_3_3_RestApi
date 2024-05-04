@@ -37,7 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/rest_api").hasRole(RolesEnum.ADMIN.getRoleNameWithoutPrefix())
                 .antMatchers("/rest_api/*").hasRole(RolesEnum.ADMIN.getRoleNameWithoutPrefix())
                 .antMatchers("/admin_page").hasRole(RolesEnum.ADMIN.getRoleNameWithoutPrefix())
-                .antMatchers("/index").hasAnyRole(RolesEnum.USER.getRoleNameWithoutPrefix(), RolesEnum.ADMIN.getRoleNameWithoutPrefix())
+                .antMatchers("/user").hasAnyRole(RolesEnum.USER.getRoleNameWithoutPrefix(), RolesEnum.ADMIN.getRoleNameWithoutPrefix())
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().successHandler(successUserHandler)
