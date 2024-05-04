@@ -150,25 +150,21 @@ function submitEditUserForm(event) {
     event.preventDefault();
     var formData = new FormData(event.target);
     var user = convertFormDataToUserObject(formData, 'edit_user_');
-    console.log("Sending JSON:", JSON.stringify(user));
 
-    userFetchService.editUser(user) // Напрямую вызываем сервис для редактирования пользователя
+    userFetchService.editUser(user)
         .then(response => {
             if (!response.ok) {
-                // Если ответ сервера не успешен, получаем тело ответа и обрабатываем ошибки
                 return response.json().then(body => {
-                    throw body; // Бросаем объект с ошибками
+                    throw body;
                 });
             }
-            return response.json(); // Получаем данные пользователя в случае успеха
+            return response.json();
         })
         .then(data => {
-            // Здесь обрабатываем успешный ответ
             $('#editUserModal').modal('hide');
             location.reload();
         })
         .catch(error => {
-            // Обработка ошибок валидации или других ошибок
             handleValidationErrors(error, 'edit_user');
         });
 }
@@ -186,7 +182,6 @@ function submitDeleteUserForm(event) {
             return response.json();
         })
         .then(data => {
-            console.log('Success:', data);
             $('#deleteUserModal').modal('hide');
             location.reload();
         })
@@ -245,7 +240,6 @@ function handleValidationErrors(errors, prefixToAdd) {
 
     Object.entries(errors).forEach(([key, message]) => {
         var inputField = $('#' + prefixToAdd + '_' + key);
-        console.log('#' + prefixToAdd + '_' + key);
         inputField.addClass('is-invalid');
         inputField.after(`<span class="error-message" style="color:red;">${message}</span>`);
     });
