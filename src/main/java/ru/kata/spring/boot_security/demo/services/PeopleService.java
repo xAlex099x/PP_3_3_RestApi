@@ -5,7 +5,7 @@ import ru.kata.spring.boot_security.demo.models.Person;
 import java.util.List;
 
 public interface PeopleService {
-    public List<Person> allPeople();
+    public List<PersonDTO> allPeople();
 
     public Person userByUsername(String username);
 

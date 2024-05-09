@@ -10,33 +10,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kata.spring.boot_security.demo.dto.PersonDTO;
 import ru.kata.spring.boot_security.demo.services.PeopleServiceImpl;
-import ru.kata.spring.boot_security.demo.util.DTOConverter;
-
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rest_api")
-public class MainController {
+public class AdminRestController {
 
     private final PeopleServiceImpl peopleServiceImpl;
-    private final DTOConverter dtoConverter;
 
     @Autowired
-    public MainController(PeopleServiceImpl peopleServiceImpl, DTOConverter dtoConverter) {
+    public AdminRestController(PeopleServiceImpl peopleServiceImpl) {
         this.peopleServiceImpl = peopleServiceImpl;
-        this.dtoConverter = dtoConverter;
     }
 
     @GetMapping("/get_people")
     public ResponseEntity<List<PersonDTO>> getPeople() {
         return ResponseEntity.ok(peopleServiceImpl
-                .allPeople()
-                .stream()
-                .map(dtoConverter::convertToDto)
-                .collect(Collectors.toList()));
+                .allPeople());
     }
 
     @PostMapping("/new")

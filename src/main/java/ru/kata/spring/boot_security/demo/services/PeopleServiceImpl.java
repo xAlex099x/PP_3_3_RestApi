@@ -15,13 +15,13 @@ import ru.kata.spring.boot_security.demo.util.PersonNotFoundByUsernameException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class PeopleServiceImpl implements PeopleService {
 
     private final PeopleRepository peopleRepository;
-
     private final DTOConverter dtoConverter;
     private final PasswordEncoder passwordEncoder;
 
@@ -33,8 +33,10 @@ public class PeopleServiceImpl implements PeopleService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<Person> allPeople() {
-        return peopleRepository.findAll();
+    public List<PersonDTO> allPeople() {
+        return peopleRepository.findAll().stream()
+                .map(dtoConverter::convertToDto)
+                .collect(Collectors.toList());
     }
 
     public Person userByUsername(String username) {
@@ -64,9 +66,14 @@ public class PeopleServiceImpl implements PeopleService {
         Person updatedUser = dtoConverter.convertToPerson(updatedUserDTO);
 
         this.userById(id);
-        updatedUser.setId(id);
-        updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        peopleRepository.save(updatedUser);
+        try {
+            this.userByUsername(updatedUser.getUsername());
+            throw new PersonNotCreatedException("Пользователь с таким username уже существует");
+        } catch (PersonNotFoundByUsernameException e) {
+            updatedUser.setId(id);
+            updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+            peopleRepository.save(updatedUser);
+        }
     }
 
     @Transactional
