@@ -17,16 +17,48 @@
             padding-right: 15px;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/user_info')
+                .then(response => response.json())
+                .then(user => {
+                    // Обновление данных текущего пользователя
+                    document.getElementById('userEmail').textContent = user.email;
+                    const rolesList = user.roles.map((role, index, array) =>
+                        role + (index === array.length - 1 ? '' : ', ')
+                    ).join('');
+                    document.getElementById('userRoles').textContent = rolesList;
+
+                    // Заполнение таблицы данными текущего пользователя
+                    const tableBody = document.getElementById('usersTableBody');
+                    tableBody.innerHTML = ''; // Очищаем текущее содержимое тела таблицы
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                <td>${user.id}</td>
+                <td>${user.username}</td>
+                <td>${user.email}</td>
+                <td>${user.roles.join(', ')}</td>
+            `;
+                    tableBody.appendChild(row);
+
+                    // Управление видимостью кнопки админа
+                    const adminButton = document.getElementById('adminButton');
+                    if (!user.roles.includes('ADMIN')) {
+                        adminButton.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error fetching user info:', error));
+        });
+    </script>
 </head>
 <body>
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
     <div>
-        <span class="text-white font-weight-bold" th:text="${person.email}"></span>
+        <span id="userEmail" class="text-white font-weight-bold"></span>
         <span class="text-white"> with roles: </span>
-        <span class="text-white font-weight-bold" th:each="role, iterStat : ${person.roles}"
-              th:text="${role} + (iterStat.last ? '' : ', ')">
-            </span>
+        <span id="userRoles" class="text-white font-weight-bold"></span>
     </div>
     <div class="navbar-nav ml-auto">
         <a class="btn btn-outline-light my-2 my-sm-0" href="/logout" style="color: #adb5bd; background-color: transparent; border-color: transparent;">Logout</a>
@@ -40,7 +72,7 @@
                 <!-- Кнопка Admin -->
                 <div sec:authorize="hasRole('ROLE_ADMIN')">
                 <li class="nav-item">
-                    <a href="/admin_page" class="nav-link text-primary" style="border-radius: 0;">Admin</a> <!-- синий текст -->
+                    <a id="adminButton" href="/admin_page.html" class="nav-link text-primary" style="border-radius: 0;">Admin</a> <!-- синий текст -->
                 </li>
                     </div>
                 <!-- Кнопка User -->
@@ -65,17 +97,7 @@
                         <th>Roles:</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr>
-                        <td th:text="${person.id}"></td>
-                        <td th:text="${person.username}">
-                        <td th:text="${person.email}"></td>
-                        <td>
-                            <ul>
-                                <li th:each="role : ${person.roles}" th:text="${role}"></li>
-                            </ul>
-                        </td>
-                    </tr>
+                    <tbody id="usersTableBody">
                     </tbody>
                 </table>
             </div>

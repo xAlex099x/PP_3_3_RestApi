@@ -23,17 +23,30 @@
             padding-right: 15px;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/user_info')
+                .then(response => response.json())
+                .then(data => {
+                    // Заполните данные пользователя
+                    document.getElementById('userEmail').textContent = data.email;
+                    const rolesList = data.roles.map((role, index, array) =>
+                        role + (index === array.length - 1 ? '' : ', ')
+                    ).join('');
+                    document.getElementById('userRoles').textContent = rolesList;
+                })
+                .catch(error => console.error('Error fetching user info:', error));
+        });
+    </script>
 </head>
 <body>
 
 <!-- Навигационная панель -->
 <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
     <div>
-        <span class="text-white font-weight-bold" th:text="${person.email}"></span>
+        <span id="userEmail" class="text-white font-weight-bold"></span>
         <span class="text-white"> with roles: </span>
-        <span class="text-white font-weight-bold" th:each="role, iterStat : ${person.roles}"
-              th:text="${role} + (iterStat.last ? '' : ', ')">
-            </span>
+        <span id="userRoles" class="text-white font-weight-bold"></span>
     </div>
     <div class="navbar-nav ml-auto">
         <a class="btn btn-outline-light my-2 my-sm-0" href="/logout"
@@ -47,10 +60,10 @@
         <div class="col-md-2 bg-white">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a href="/admin_page" class="nav-link bg-primary text-white">Admin</a>
+                    <a href="/admin_page.html" class="nav-link bg-primary text-white">Admin</a>
                 </li>
                 <li class="nav-item">
-                    <a href="/user_page" class="nav-link text-primary">User</a>
+                    <a href="/user_page.html" class="nav-link text-primary">User</a>
                 </li>
             </ul>
         </div>

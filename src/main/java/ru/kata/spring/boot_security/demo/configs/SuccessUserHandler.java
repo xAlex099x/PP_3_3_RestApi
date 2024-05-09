@@ -17,9 +17,9 @@ public class SuccessUserHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException {
         Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
         if (roles.contains(RolesEnum.ADMIN.getRoleName())) {
-            httpServletResponse.sendRedirect("/admin_page");
+            httpServletResponse.sendRedirect("/admin_page.html");
         } else if (roles.contains(RolesEnum.USER.getRoleName())) {
-            httpServletResponse.sendRedirect("/user_page");
+            httpServletResponse.sendRedirect("/user_page.html");
         } else {
             httpServletResponse.sendRedirect("/");
         }
