@@ -1,10 +1,5 @@
 package ru.kata.spring.boot_security.demo.dto;
 
-
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.kata.spring.boot_security.demo.services.RoleService;
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;

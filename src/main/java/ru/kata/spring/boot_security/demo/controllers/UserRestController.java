@@ -18,31 +18,8 @@ public class UserRestController {
         this.dtoConverter = dtoConverter;
     }
 
-    //    @GetMapping("/user_page")
-//    public String userPage(Model model) {
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        PersonDetails details = (PersonDetails) auth.getPrincipal();
-//        model.addAttribute("person", dtoConverter.convertToDto(details.getPerson()));
-//        return "/user_page";
-//    }
-    @GetMapping("/user_page")
-    public ResponseEntity<?> userPage() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        PersonDetails details = (PersonDetails) auth.getPrincipal();
-        PersonDTO personDto = dtoConverter.convertToDto(details.getPerson());
-
-        return ResponseEntity.ok(personDto); // Возвращает объект personDto в формате JSON с HTTP статусом 200
-    }
-
-    //    @GetMapping("/admin_page")
-//    public String adminPage(Model model) {
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        PersonDetails details = (PersonDetails) auth.getPrincipal();
-//        model.addAttribute("person", dtoConverter.convertToDto(details.getPerson()));
-//        return "/admin_page";
-//    }
     @GetMapping("/user_info")
-    public ResponseEntity<?> userInfo() {
+    public ResponseEntity<PersonDTO> userInfo() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         PersonDetails details = (PersonDetails) auth.getPrincipal();
         PersonDTO personDto = dtoConverter.convertToDto(details.getPerson());
